@@ -13,6 +13,8 @@ This Project is BCP Concept Prototype Sample which explaining how BCP works
 * [OpenSSL-1.1.0c](https://openssl.org)
 
 # demo ( prebuild binaries )
+Test environment: Windows10/VS2017/OpenSSL-1.1.0c/Boost-1.66
+
 ~~~
 bryllite-platform/bin/Release/demo1.bat
 bryllite-platform/bin/Release/demo2.bat
