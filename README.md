@@ -13,8 +13,10 @@ This Project is BCP Concept Prototype Sample which explaining how BCP works
 * [OpenSSL-1.1.0c](https://openssl.org)
 
 # demo ( prebuild binaries )
-`bryllite-platform/bin/Release/demo1.bat`
-`bryllite-platform/bin/Release/demo2.bat`
+~~~
+bryllite-platform/bin/Release/demo1.bat
+bryllite-platform/bin/Release/demo2.bat
+~~~
 
 # how to build
 set OPENSSL_ROOT_DIR & BOOST_ROOT on `cmake32.bat`
