@@ -9,12 +9,6 @@
 #if !defined( _BRYLLITE_PLATFORM_BRYLLITE_COMMON_LIB_THREADABLE_HPP_ )
 #define _BRYLLITE_PLATFORM_BRYLLITE_COMMON_LIB_THREADABLE_HPP_
 
-#include <thread>
-#include <atomic>
-#include <sstream>
-
-#include "lockable.hpp"
-#include "log.hpp"
 
 // namespace bryllite
 namespace bryllite {
@@ -88,7 +82,7 @@ protected:
 	// waiting for thread signaled
 	bool wait_for_signaled(ThreadContext* pContext, time_t timeout = 0);
 
-	lockable* getLockable(void);
+	lockable& getLockable(void);
 
 	// keep going or not?
 	bool keepGoing(void);

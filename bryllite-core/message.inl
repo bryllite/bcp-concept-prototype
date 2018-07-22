@@ -9,9 +9,6 @@
 #if !defined( _BRYLLITE_PLATFORM_BRYLLITE_COMMON_LIB_MESSAGE_INL_ )
 #define _BRYLLITE_PLATFORM_BRYLLITE_COMMON_LIB_MESSAGE_INL_
 
-#include "uint256.hpp"
-#include "block.hpp"
-#include "key.hpp"
 
 
 // default service port
@@ -24,7 +21,7 @@ enum {
 };
 
 enum {
-	max_message_length = (64*1024)-8,	// max packet size 64k - 8 ( for udp header 8 )
+	max_message_length = (64*1024),		// max packet size 64k
 //	max_payload_length = max_message_length - 10,	// max payload size 64k - 8 - 10(for sizeof(message_header)
 //	max_payload_length = 32*1024,	// max payload size 64k - 8 - 10(for sizeof(message_header)
 };
@@ -42,8 +39,14 @@ enum message_id {
 
 	message_ping_id,	// ping?
 	message_pong_id,	// pong!
-	message_travel_id,	// travel packet for test: node -> bridge server -> game server -> game client -> node
-	message_signed_travel_id,
+
+	message_header_sign_req_id,
+	message_header_sign_ack_id,
+
+	message_balance_req_id,
+	message_balance_ack_id,
+
+	message_transactions_notify_id,
 
 	message_common_end,
 	// common message end
@@ -51,35 +54,41 @@ enum message_id {
 	////////////////////////////////
 	// node <-> node message start
 	node_message_start = 1000,
-
+	node_message_system_start,
+		node_message_peer_id_id,
+	node_message_system_end,
+	node_message_user_start = node_message_start + 100,
+		node_message_block_req_id,
+		node_message_block_notify_id,
+		node_message_new_round_id,
+		node_message_propose_id,
+		node_message_vote_id,
+		node_message_commit_id,
+		node_message_verify_block_id,
 	node_message_end,
 	// node <-> node message end
 
 	////////////////////////////////////////
 	// node <-> bridge server message start
 	node_bridge_message_start = 2000,
-	node_bridge_message_pop_id,
 	node_bridge_message_end,
 	// node <-> bridge server message end
 
 	////////////////////////////////////////////////
 	// bridge server <-> game server message start
 	bridge_game_message_start = 3000,
-	bridge_game_message_pop_id,
 	bridge_game_message_end,
 	// bridge server <-> game server message end
 
 	/////////////////////////////////////////////
 	// game server <-> game client message start
 	game_message_start = 4000,
-	game_message_pop_id,
 	game_message_end,
 	// game server <-> game client message end
 
 	///////////////////////////////////////
 	// node <-> game client message start
 	node_client_message_start = 5000,
-	node_client_message_pop_id,
 	node_client_message_end,
 	// node <-> game client message end
 
@@ -131,27 +140,6 @@ protected:
 //	unsigned short _ver;
 };
 
-// sign information
-class signing
-{
-public:
-	uint264 _public_key;
-	uint512 _signature;
-
-public:
-	signing() {
-	};
-
-	signing( uint264 public_key, uint512 sig ) : _public_key( public_key ), _signature( sig ) {
-	};
-
-	bool verify_for( uint256 hash ) {
-		return bryllite::do_verify( _public_key, hash, _signature );
-	};
-};
-
-
-
 #pragma pack(pop)	// bytes align for packet
 
 
@@ -197,96 +185,257 @@ public:
 	};
 };
 
-// message travel for test
-class message_travel : public message
+
+// block header sign request 
+class message_header_sign_req : public message
 {
 public:
-	size_t _id;
+	CBlockHeader _header;
+	CSecret _bridge_server_secret;
+	CSecret _game_server_secret;
 
 public:
-	message_travel( size_t id ) : _ctor( message_travel ), _id( id ) {
+	message_header_sign_req( CBlockHeader header ) : _ctor( message_header_sign_req ), _header(header) 
+	{
+	};
+
+	message_header_sign_req( CBlockHeader header, CSecret bridge_server_secret ) 
+		: _ctor( message_header_sign_req ), _header(header), _bridge_server_secret(bridge_server_secret)
+	{
+	};
+
+	message_header_sign_req( CBlockHeader header, CSecret bridge_server_secret, CSecret game_server_secret ) 
+		: _ctor( message_header_sign_req ), _header(header), _bridge_server_secret(bridge_server_secret), _game_server_secret(game_server_secret)
+	{
 	};
 };
 
-// message travel sign
-class message_signed_travel : public message
+// block header sign ack
+class message_header_sign_ack : public message
 {
 public:
-	message_travel _travel;
-	uint264 _public_key;
-	uint512 _signature;
+	CBlockHeader _header;
+	CSecret _bridge_server_secret;
+	CSecret _game_server_secret;
 
 public:
-	message_signed_travel( size_t id ) : _ctor( message_signed_travel ), _travel(id) {
+	message_header_sign_ack( CBlockHeader header ) : _ctor( message_header_sign_ack ), _header(header)
+	{
+	};
+
+	message_header_sign_ack( CBlockHeader header, CSecret bridge_server_secret ) 
+		: _ctor( message_header_sign_ack ), _header(header), _bridge_server_secret(bridge_server_secret)
+	{
+	};
+
+	message_header_sign_ack( CBlockHeader header, CSecret bridge_server_secret, CSecret game_server_secret ) 
+		: _ctor( message_header_sign_ack ), _header(header), _bridge_server_secret(bridge_server_secret), _game_server_secret(game_server_secret)
+	{
 	};
 };
 
-// node server -> bridge server: request block header relay to bridge server
-class node_bridge_message_pop : public message
+class message_balance_req : public message
 {
-	using block_header = bryllite::block_header;
 public:
-	block_header _header;
+	char _address[CAddress::max_length + 1];
 
 public:
-	node_bridge_message_pop( block_header header ) : _ctor( node_bridge_message_pop ), _header(header) {
+	message_balance_req( std::string address ) : _ctor( message_balance_req )
+	{
+		memset( _address, 0, sizeof( _address ) );
+		copy_string( _address, sizeof( _address ), address.c_str(), address.length() );
+	};
+
+	std::string address( void )
+	{
+		return std::string( _address );
+	};
+};
+
+class message_balance_ack : public message
+{
+public:
+	char _address[CAddress::max_length + 1];
+	uint64_t _balance;
+
+public:
+	message_balance_ack( std::string address, uint64_t balance ) : _ctor( message_balance_ack ), _balance(balance)
+	{
+		memset( _address, 0, sizeof( _address ) );
+		copy_string( _address, sizeof( _address ), address.c_str(), address.length() );
+	};
+
+	std::string address( void )
+	{
+		return std::string( _address );
+	};
+
+	uint64_t balance( void )
+	{
+		return _balance;
+	};
+};
+
+// transactions notify
+class message_transactions_notify : public message
+{
+public:
+	size_t _lifetime;
+	byte _transactions_buffer[CTransactions::max_transactions_size + 1];
+
+	message_transactions_notify(size_t lifetime) : _ctor( message_transactions_notify ), _lifetime(lifetime)
+	{
+		memset(_transactions_buffer, 0, sizeof(_transactions_buffer));
+	};
+
+	message_transactions_notify( size_t lifetime, CTransactions txs ) : _ctor( message_transactions_notify ), _lifetime(lifetime)
+	{
+		txs.serialize(_transactions_buffer, sizeof(_transactions_buffer));
+	};
+
+	// get transactions
+	bool transactions(CTransactions& txs)
+	{
+		return txs.unserialize(_transactions_buffer, sizeof(_transactions_buffer))>0;
 	};
 };
 
 
-// bridge server -> game server : request block header relay to game server
-class bridge_game_message_pop : public message
+// peer id
+class node_message_peer_id : public message
 {
-	using block_header = bryllite::block_header;
-	using signing = bryllite::net::signing;
 public:
-	block_header _header;
-//	signing _bridge_sign;
+	PeerData _peer_data;
+	CSecret _secret;
+	size_t _block_height;
 
 public:
-//	bridge_game_message_pop( block_header header, signing bridge_sign) : _ctor( bridge_game_message_pop ), _header(header), _bridge_sign(bridge_sign) {
-//	};
-	bridge_game_message_pop( block_header header ) : _ctor( bridge_game_message_pop ), _header( header ) {
+	node_message_peer_id( PeerData peer_data, CSecret secret, size_t block_height ) : _ctor(node_message_peer_id), _peer_data(peer_data), _secret(secret), _block_height(block_height)
+	{
 	};
 
-};
-
-// game server -> game client : sending block header to game client
-class game_message_pop : public message
-{
-	using block_header = bryllite::block_header;
-	using signing = bryllite::net::signing;
-public:
-	block_header _header;
-//	signing _bridge_sign;
-//	signing _game_sign;
-
-public:
-//	game_message_pop( block_header header, signing bridge_sign, signing game_sign ) : _ctor( game_message_pop ), _header(header), _bridge_sign(bridge_sign), _game_sign(game_sign) {
-//	};
-	game_message_pop( block_header header ) : _ctor( game_message_pop ), _header( header ) {
+	CSecret& secret(void)
+	{
+		return _secret;
 	};
 };
 
-
-// game client -> node server : sending user-signed block header
-class node_client_message_pop : public message
+class node_message_block_req : public message
 {
-	using block_header = bryllite::block_header;
-	using signing = bryllite::net::signing;
 public:
-	block_header _header;
-//	block_header _user_header;
-//	signing _bridge_sign;
-//	signing _game_sign;
+	size_t _block_idx;
 
 public:
-//	node_client_message_pop( block_header header, block_header user_header, signing bridge_sign, signing game_sign ) 
-//		: _ctor( node_client_message_pop ), _header( header ), _user_header(user_header), _bridge_sign( bridge_sign ), _game_sign( game_sign ) {
-//	};
-	node_client_message_pop( block_header header ) : _ctor( node_client_message_pop ), _header( header ) {
+	node_message_block_req( size_t block_idx ) : _ctor(node_message_block_req), _block_idx(block_idx)
+	{
+	};
+
+	size_t idx( void )
+	{
+		return _block_idx;
 	};
 };
+
+class node_message_block_notify : public message
+{
+public:
+	size_t _block_idx;
+	byte _block_data[ CBlock::max_block_size + 1 ];
+
+public:
+	node_message_block_notify( size_t block_idx, CBlock block ) : _ctor(node_message_block_notify), _block_idx(block_idx)
+	{
+		block.serialize( _block_data, sizeof(_block_data) );
+	};
+
+	size_t idx( void )
+	{
+		return _block_idx;
+	};
+
+	CBlock block( void )
+	{
+		CBlock b;
+		b.unserialize( _block_data, sizeof(_block_data) );
+		return b;
+	}
+};
+
+
+class node_message_new_round : public message
+{
+public:
+	size_t _new_block_index;
+
+public:
+	node_message_new_round( size_t new_block_index ) : _ctor( node_message_new_round ), _new_block_index( new_block_index ) {
+	};
+};
+
+class node_message_propose : public message
+{
+public:
+	CBlockHeader _block_header;
+
+public:
+	node_message_propose( CBlockHeader header ) : _ctor( node_message_propose ), _block_header( header ) {
+	};
+};
+
+class node_message_vote : public message
+{
+public:
+	CBlockHeader _block_header;
+
+public:
+	node_message_vote( CBlockHeader header ) : _ctor( node_message_vote ), _block_header( header ) {
+	};
+};
+
+class node_message_commit : public message
+{
+public:
+	byte _block[ CBlock::max_block_size + 1 ];
+	CSecret _secret;
+
+public:
+	node_message_commit( CBlock block, CSecret secret ) : _ctor( node_message_commit ) , _secret(secret)
+	{
+		block.serialize( _block, sizeof( _block ) );
+	};
+
+	CBlock block( void )
+	{
+		CBlock b;
+		b.unserialize( _block, sizeof( _block ) );
+		return b;
+	};
+
+	CSecret& secret( void )
+	{
+		return _secret;
+	};
+};
+
+class node_message_verify_block : public message
+{
+public:
+	byte _block[ CBlock::max_block_size + 1 ];
+
+public:
+	node_message_verify_block( CBlock b ) : _ctor( node_message_verify_block )
+	{
+		b.serialize( _block, sizeof(_block) );
+	};
+
+	CBlock get( void )
+	{
+		CBlock b;
+		b.unserialize( _block, sizeof(_block) );
+		return b;
+	}
+};
+
 
 
 

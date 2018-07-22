@@ -1,114 +1,75 @@
 #pragma once
 
-#include <cstdint>
-#include <string>
 
-#include <bryllite-common.hpp>
-
-#include <boost/asio.hpp>
-
-#include "transaction.hpp"
-#include "sha256.hpp"
-
-
-// namespace bryllite
-namespace bryllite {
-
-// block header
-class block_header
+// block class
+class CBlock
 {
-	struct header
-	{
-		size_t _blockNumber;
-		uint32_t _version;
-		uint256 _hashPrevBlock;
-		uint256 _hashMerkleRoot;
-		time_t _timestamp;
-		size_t _transactionCnt;
-
-		header() : _blockNumber(-1), _version(VERSION_NUMBER), _timestamp(0), _transactionCnt(0) {
-		};
-
-		header( size_t blockNumber, uint256 hashPrevBlock ) : _blockNumber(blockNumber), _hashPrevBlock(hashPrevBlock), _version(VERSION_NUMBER), _timestamp(0), _transactionCnt(0) {
-		};
-	};
+public:
+	enum { max_block_size = 62 * 1024 };
+	using HashType = CBlockHeader::HashType;
 
 public:
+	// block header
+	CBlockHeader _header;
+
+	// transactions
+	CTransactions _transactions;
+
+	// node committed secrets
+	std::vector<CSecret> _node_secrets;
+
+public:
+	CBlock();
+	CBlock( size_t idx, uint256 hashPrevBlock );
+
+	bool isNull( void ) const;
+
+	// add transaction
+	bool append_transaction( CTransactions& txs );
+	bool append_transaction( CTransaction& tx, bool update_merkle_hash = true );
+
+	size_t transactions( bool container );
+	CTransactions& transactions(void);
+	bool transaction(size_t idx, CTransaction& tx);
+	bool transaction(uint256 txid, CTransaction& tx);
+
+	// block id
+	size_t idx( void );
 
 	// header
-	header _header;
+	CBlockHeader& header( void );
+	void header( CBlockHeader& hdr );
 
-	// user signature
-	uint264 _userPublicKey;
-	uint512 _userSignature;
+	// hash
+	uint256 hash( HashType type = HashType::UserSigned );
 
-	block_header() {
-	};
+	// prev block hash
+	uint256 prev_hash( void );
+	std::string prev_hash_string( void );
 
-	block_header( size_t blockNumber, uint256 hashPrevBlock ) : _header(blockNumber, hashPrevBlock) {
-	};
+	bool node_sign( CKeyPair keyPair );
+	bool node_sign( CSecret sign );
+	bool node_verify(void);
+	CSecret& node_secret( void );
 
-	bool valid(void);
+	bool user_sign( CKeyPair keyPair );
+	bool user_sign( CSecret sign );
+	CSecret& user_secret( void );
+	bool user_verify(void);
 
-	size_t blockNumber( void ) { return _header._blockNumber; };
-	std::string dump( void );
-
-	bool sign( uint256 private_key, uint264 public_key );
-
-	uint256 get_header_hash( void );
-	uint256 get_prev_hash( void );
-
-	bool operator==(const block_header& other ) const;
-	bool operator!=(const block_header& other ) const;
-	bool operator<(const block_header& other ) const; 
-	bool operator<=( const block_header& other ) const;
-	bool operator>(const block_header& other ) const; 
-	bool operator>=( const block_header& other ) const;
-};
-
-
-// block class ( header + transactions )
-class block 
-{
-public:
-	block_header _header;
-	transactions _transactions;
-
-public:
-	block() {
-	};
-
-	block( size_t blockNumber, uint256 hashPrevBlock ) : _header( blockNumber, hashPrevBlock ) {
-	};
-
-	bool valid( void );
-
-	bool append_transaction( transactions& txs );
-	bool append_transaction( transaction& tx, bool update_merkle_hash = true );
-
-	size_t blockNumber( void ) { return _header.blockNumber(); };
-
-	uint256 get_header_hash( void );
-	uint256 get_prev_hash( void );
-
-	bool sign( uint256 private_key, uint264 public_key );
-
-	std::string dump( void );
+	std::string to_string( bool short_hex_code = true );
 
 	size_t serialize( byte* target, size_t target_len );
 	size_t unserialize( byte* src, size_t src_len );
 
-	bool operator==( const block& other ) const;
-	bool operator!=( const block& other ) const;
-	bool operator<( const block& other ) const;
-	bool operator<=( const block& other ) const;
-	bool operator>( const block& other ) const;
-	bool operator>=( const block& other ) const;
-
-	uint256 merkle_root_hash( void );
+	bool operator==( const CBlock& other ) const;
+	bool operator!=( const CBlock& other ) const;
+	bool operator<( const CBlock& other ) const;
+	bool operator<=( const CBlock& other ) const;
+	bool operator>( const CBlock& other ) const;
+	bool operator>=( const CBlock& other ) const;
 
 protected:
-	bool update_merkle_root_hash( void );
+	bool update(void);
 };
 
-};//namespace bryllite

@@ -9,13 +9,16 @@
 #if !defined( _BRYLLITE_PLATFORM_BRYLLITE_COMMON_LIB_TIMER_HPP_ )
 #define _BRYLLITE_PLATFORM_BRYLLITE_COMMON_LIB_TIMER_HPP_
 
-#include <chrono>
-#include <ctime>
-#include <time.h>
-#include <map>
+typedef int timer_id;
 
-#include "utils.hpp"
-#include "lockable.hpp"
+// timer callback interface
+class ICallbackTimer
+{
+public:
+	virtual void onTimeOut( timer_id id, void* context ) = 0;
+};
+
+
 
 // namespace bryllite
 namespace bryllite {
@@ -52,17 +55,9 @@ protected:
 
 // timestamp
 time_t timestamp(void);
-typedef int timer_id;
-
-// timer callback interface
-class timer_callback
-{
-public:
-	virtual void onTimeOut( timer_id id, void* context ) = 0;
-};
 
 // callback timer
-class callback_timer : public lockable, public timer
+class callback_timer : public timer
 {
 protected:
 
@@ -72,27 +67,68 @@ protected:
 	public:
 		timer_id m_id;
 		time_t m_timeout;
-		timer_callback* m_callback;
+		ICallbackTimer* m_callback;
 		void* m_context;
 		time_t m_beginTime;
 		int m_repeat;		// repeat cnt: -1 means infinite
 
 	public:
-		timer_item(timer_id id, time_t timeout, timer_callback* callback, int repeat, void* context);
+		timer_item(timer_id id, time_t timeout, ICallbackTimer* callback, int repeat, void* context);
 	};
 
 public:
 	callback_timer();
 
-	// register callback
-	bool callback( timer_id id, time_t timeout, timer_callback* pCallback, int repeat = -1, void* pContext = nullptr );
+	// set timer callback
+	bool set_timer( timer_id id, time_t timeout, ICallbackTimer* pCallback, int repeat = -1, void* pContext = nullptr );
+
+	// stop timer callback
+	void stop_timer( timer_id id );
 
 	void work( void );
 
 protected:
-
+	lockable m_lock;
 	std::map< timer_id, timer_item > m_timers;
 };
+
+
+// network time protocol timer
+class ntp_timer
+{
+	enum { ntp_default_port = 123 };
+protected:
+	time_t _ntp_time;				// ntp get time (ms)
+	time_t _local_timestamp;		// local time (ms)
+
+	std::string _host;		// ntp host
+	unsigned short _port;	// ntp port
+
+	bool _sync;				// is time synchronized?
+
+public:
+	ntp_timer();
+	ntp_timer(std::string host, unsigned short port);
+
+	bool sync(time_t timeout);
+	bool sync(std::string host, unsigned short port, time_t timeout);
+
+	// time (sec)
+	time_t time(void);
+
+	// time (msec)
+	time_t timestamp(void);
+
+	// get time difference
+	time_t time_diff( void );
+
+	// get server time
+	static time_t get_ntp_time(std::string host, unsigned short port);
+
+protected:
+	bool synchronize( std::string host, unsigned short port, time_t timeout );
+};
+
 
 // get formatted date & time code with time shift in sec
 // e.g. format="%y-%m-%d", output="2018-05-14"

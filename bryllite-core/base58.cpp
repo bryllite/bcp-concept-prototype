@@ -2,13 +2,9 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <base58.hpp>
+#include "stdafx.hpp"
+#include "base58.hpp"
 
-//#include <hash.h>
-#include <uint256.hpp>
-
-#include <assert.h>
-#include <string.h>
 
 /** All alphanumeric characters except for "0", "I", "O", and "l" */
 static const char* pszBase58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
@@ -128,6 +124,52 @@ std::string EncodeBase58(const std::vector<unsigned char>& vch)
 bool DecodeBase58(const std::string& str, std::vector<unsigned char>& vchRet)
 {
     return DecodeBase58(str.c_str(), vchRet);
+}
+
+std::string encode_base58_check( byte prefix, std::string str )
+{
+	// (1): add prefix 0x00
+	std::string s = bryllite::byte_to_hex( prefix ) + str;
+
+	// (2): 4bytes checksum: sha256(sha256(1))
+	std::string checksum = bryllite::sha256s( bryllite::sha256s( s ) ).substr( 0, 8 );
+
+	// (3): append checksum in the end of (1)
+	s += checksum;
+
+	// (4) encode base58
+	std::vector< byte > bytes = bryllite::hex_to_bytes( s );
+	std::string base58 = EncodeBase58( bytes );
+
+	// base58_check encoded ( maybe 33 or 34 chars )
+	return base58;
+}
+
+bool decode_base58_check( const char* psz, std::vector<byte>& vchOut )
+{
+	// decode base58
+	if( !DecodeBase58( psz, vchOut ) || vchOut.size() < 4 ) {
+		vchOut.clear();
+		return false;
+	}
+
+	std::string decoded = bryllite::bytes_to_hex( vchOut );
+	std::string payload = decoded.substr( 0, decoded.length() - 8 );
+	std::string checksum = decoded.substr( decoded.length() - 8, 8 );
+
+	std::string payload_checksum = bryllite::sha256s( bryllite::sha256s( payload ) ).substr( 0, 8 );
+
+	if( checksum.compare( payload_checksum ) ) {
+		vchOut.clear();
+		return false;
+	}
+
+	return true;
+}
+
+bool decode_base58_check( const std::string& str, std::vector<byte>& vchOut )
+{
+	return decode_base58_check( str.c_str(), vchOut );
 }
 
 /*

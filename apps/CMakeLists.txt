@@ -1,11 +1,23 @@
-# bryllite game server
-add_subdirectory( game-server )
+# bryllite node server lib
+#add_subdirectory( node-server-lib )
 
-# bryllite game client
-add_subdirectory( game-client )
+# bryllite node server app
+add_subdirectory( node-server-app )
 
-# bryllite master node
-add_subdirectory( node-server )
+# bryllite bridge server lib
+#add_subdirectory( bridge-server-lib )
 
-# bryllite bridge service
-add_subdirectory( bridge-server )
+# bryllite bridge server app
+add_subdirectory( bridge-server-app )
+
+# bryllite game server lib
+#add_subdirectory( game-server-lib )
+
+# bryllite game server app
+add_subdirectory( game-server-app )
+
+# bryllite game client lib
+#add_subdirectory( game-client-lib )
+
+# bryllite game client app
+add_subdirectory( game-client-app )

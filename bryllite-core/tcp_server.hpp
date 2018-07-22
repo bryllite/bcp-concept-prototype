@@ -1,18 +1,11 @@
 #if !defined( __BRYLLITE_PLATFORM_BRYLLITE_CORE_LIB_TCP_SERVER_HPP__ )
 #define __BRYLLITE_PLATFORM_BRYLLITE_CORE_LIB_TCP_SERVER_HPP__
 
-#include "bryllite-common.hpp"
-
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
-
-#include "message.inl"
-
-
-#pragma _TODO("[2018-05-20] need to replace _readBuffer, _writeBuffer to var buffers")
-
+/*
 // namespace bryllite::net
 namespace bryllite { namespace net {
+
+
 
 // tcp session class
 class tcp_session
@@ -22,9 +15,9 @@ class tcp_session
 protected:
 	tcp::socket _socket;
 	enum { max_buffer_cnt = 64, max_buffer_size = 4096 };
-	char _read_buffer[max_buffer_cnt + 1][max_buffer_size + 1];
-	char _write_buffer[max_buffer_cnt + 1][max_buffer_size + 1];
-	int _read_buffer_pos, _write_buffer_pos ;
+	socket_buffer< max_buffer_cnt, max_buffer_size > _read_buffer;
+	socket_buffer< max_buffer_cnt, max_buffer_size > _write_buffer;
+
 	std::atomic<bool> _active;
 	time_t _closed ;
 
@@ -36,16 +29,6 @@ public:
 	void active( bool active_ );
 
 	tcp::socket& socket( void );
-
-	// read buffer
-	char* read_buffer( int read_buffer_pos );
-	size_t read_buffer_size( void );
-	int read_buffer_pos( void);
-
-	// write buffer
-	char* write_buffer( int write_buffer_pos );
-	size_t write_buffer_size( void );
-	int write_buffer_pos( void );
 
 	void close( void );
 	bool expired( time_t timeout );
@@ -61,6 +44,7 @@ protected:
 	tcp::acceptor _acceptor;			// acceptor
 	tcp::endpoint _local_endpoint;		// listen endpoint
 	std::vector< std::shared_ptr< tcp_session > > _sessions;	// sessions
+	tcp_session* _new_session;
 	std::vector< std::unique_ptr< std::thread > > _io_threads;	// io threads
 
 public:
@@ -68,6 +52,16 @@ public:
 
 	bool tcp_start( unsigned short port, int io_thread_cnt = 1 ); 
 	bool tcp_stop( void );
+
+	bool start_server( unsigned short port, int io_thread_cnt = 1 ) {
+		return tcp_start( port, io_thread_cnt );
+	};
+
+	bool stop_server( void ) {
+		return tcp_stop();
+	};
+
+
 
 	// close_session
 	void close_session( tcp_session* session ); 
@@ -81,6 +75,19 @@ public:
 
 	// write message to all client ( except for except_session )
 	void tcp_broadcast( message* msg, tcp_session* except_session = nullptr );
+
+	void sendto( tcp_session* session, message* msg ) {
+		tcp_send( session, msg );
+	};
+
+	void sendto( tcp_session* session, const char* data, size_t len ) {
+		tcp_send( session, data, len );
+	};
+
+	void sendall( message* msg ) {
+		tcp_broadcast( msg );
+	};
+
 
 protected:
 
@@ -101,16 +108,16 @@ protected:
 	void session_read_header( tcp_session* session );
 
 	// read payload
-	void session_read_payload( tcp_session* session, message_header* header, int read_buffer_pos );
+	void session_read_payload( tcp_session* session, message* header );
 
 	// read header procedure
-	void handle_session_read_header( tcp_session* session, const boost::system::error_code& error, size_t bytes_transferred, int read_buffer_pos );
+	void handle_session_read_header( tcp_session* session, const boost::system::error_code& error, size_t bytes_transferred, message* header );
 
 	// read payload procedure
-	void handle_session_read_payload( tcp_session* session, const boost::system::error_code& error, size_t bytes_transferred, int read_buffer_pos );
+	void handle_session_read_payload( tcp_session* session, const boost::system::error_code& error, size_t bytes_transferred, message* header );
 
 	// write handler
-	void handle_session_write( tcp_session* session, const boost::system::error_code& error, size_t bytes_transferred, int write_buffer_pos );
+	void handle_session_write( tcp_session* session, const boost::system::error_code& error, size_t bytes_transferred, message* header );
 
 
 	// new connection
@@ -128,8 +135,148 @@ protected:
 }; // tcp_server
 
 
-
-
 }}; //namespace bryllite::net
+*/
+
+
+class CTcpSession;
+
+// tcp session callback interface
+class ITcpSession 
+{
+public:
+	virtual int onTcpSessionConnected( CTcpSession* session, bool connected ) = 0;
+	virtual int onTcpSessionDisconnected( CTcpSession* session, int reason ) = 0;
+	virtual int onTcpSessionWrite( CTcpSession* session, message* msg, size_t bytes_transferred ) = 0;
+	virtual int onTcpSessionMessage( CTcpSession* session, message* msg ) = 0;
+};
+
+// tcp session class
+class CTcpSession
+{
+	using tcp = boost::asio::ip::tcp;
+	friend class CTcpServer;
+
+	enum { max_buffer_cnt = 16, max_buffer_size = max_message_length };
+
+protected:
+	CTcpServer& _tcp_server;		// tcp server ref
+	boost::asio::io_service& _ios;	// io_service ref
+	tcp::socket _socket;			// socket
+
+	// read/write buffer
+	socket_buffer< max_buffer_cnt, max_buffer_size > _read_buffer;
+	socket_buffer< max_buffer_cnt, max_buffer_size > _write_buffer;
+
+	// is connected?
+	bool _connected;
+
+	// tcp session callback interface
+	ITcpSession* _tcp_session_callback;
+
+public:
+	CTcpSession( CTcpServer& tcp_server, boost::asio::io_service& ios, ITcpSession* tcp_session_callback );
+	virtual ~CTcpSession();
+
+	tcp::socket& socket( void );
+
+	// is connected?
+	bool connected( void );
+
+	// close connection
+	void close( int reason = 0 );
+
+	// write message
+	bool write( byte* data, size_t len );
+	bool write( message* msg );
+
+	// session start/stop
+	bool start( void );
+	bool stop( void );
+
+	// remote addr
+	std::string ip( void );
+	unsigned short port( void );
+
+protected:
+	// read
+	bool do_read( void );
+
+	// read header handler
+	void handle_read_header( const boost::system::error_code& error, size_t bytes_transferred );
+
+	// read body handler
+	void handle_read_body( const boost::system::error_code& error, size_t bytes_transferred, message* header );
+
+	// write handler
+	void handle_write( const boost::system::error_code& error, size_t bytes_transferred, message* msg );
+
+};
+
+
+class ITcpServer
+{
+public:
+	virtual int onTcpServerAccept( CTcpSession* session ) = 0;
+	virtual int onTcpServerDisconnect( CTcpSession* session, int reason ) = 0;
+	virtual int onTcpServerWrite( CTcpSession* session, message* msg, size_t bytes_trasnferred ) = 0;
+	virtual int onTcpServerMessage( CTcpSession* session, message* msg ) = 0;
+};
+
+
+// tcp server ( using callback interface )
+class CTcpServer : public ITcpSession
+{
+	using tcp = boost::asio::ip::tcp;
+protected:
+
+	boost::asio::io_service& _ios;
+	tcp::acceptor _acceptor;
+	tcp::endpoint _local_endpoint;
+
+	bryllite::lockable _lock;
+
+	// tcp server callback interface
+	ITcpServer& _tcp_server_callback;
+
+	// sessions
+	std::vector< std::unique_ptr< CTcpSession > > _sessions;
+	CTcpSession* _new_session;
+
+	bool _stop;
+
+public:
+	// ctor
+	CTcpServer( boost::asio::io_service& ios, ITcpServer& tcp_server_callback );
+
+	// start/stop server
+	bool start_server( unsigned short port );
+	bool stop_server( void );
+
+	// send message
+	bool sendto( CTcpSession* session, message* msg );
+	size_t sendall( message* msg );
+
+	size_t session_count( void );
+
+protected:
+	// allocate session
+	virtual CTcpSession* new_session( void );
+
+protected:
+	// accept client socket
+	bool accept( void );
+	// accept handler
+	void handle_accept( CTcpSession* new_session, const boost::system::error_code& error );
+
+
+public:
+	// tcp session callback
+	int onTcpSessionConnected( CTcpSession* session, bool connected );
+	int onTcpSessionDisconnected( CTcpSession* session, int reason );
+	int onTcpSessionWrite( CTcpSession* session, message* msg, size_t bytes_transferred );
+	int onTcpSessionMessage( CTcpSession* session, message* msg );
+};
+
 
 #endif //__BRYLLITE_PLATFORM_BRYLLITE_CORE_LIB_TCP_SERVER_HPP__

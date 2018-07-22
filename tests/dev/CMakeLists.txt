@@ -17,51 +17,76 @@
 #target_link_libraries( udpclient bryllite-common bryllite-core ${Boost_LIBRARIES} )
 
 #add_executable( openssl openssl_test.cpp )
-#target_link_libraries( openssl 
-#	bryllite-common 
-#	bryllite-core 
-#	${Boost_LIBRARIES} 
+#target_link_libraries( openssl
+#	bryllite-common
+#	bryllite-core
+#	${Boost_LIBRARIES}
 #	${OPENSSL_LIBRARIES}
 #)
 
 #add_executable( secp256k1 secp256k1.cpp )
-#target_link_libraries( secp256k1 
-#	bryllite-common 
-#	bryllite-core 
-#	${Boost_LIBRARIES} 
+#target_link_libraries( secp256k1
+#	bryllite-common
+#	bryllite-core
+#	${Boost_LIBRARIES}
 #	OpenSSL::Crypto
 #)
 
-#add_executable( ecc_test 
-#	ecc_test.cpp 
+#add_executable( ecc_test
+#	ecc_test.cpp
 #)
-#target_link_libraries( ecc_test 
-#	bryllite-common 
-#	bryllite-core 
-#	${Boost_LIBRARIES} 
+#target_link_libraries( ecc_test
+#	bryllite-common
+#	bryllite-core
+#	${Boost_LIBRARIES}
 #	OpenSSL::Crypto
 #)
 
-#add_executable( bcp 
-#	bcp.cpp 
+#add_executable( bcp
+#	bcp.cpp
 #)
-#target_link_libraries( bcp 
-#	bryllite-common 
-#	bryllite-core 
-#	${Boost_LIBRARIES} 
+#target_link_libraries( bcp
+#	bryllite-common
+#	bryllite-core
+#	${Boost_LIBRARIES}
 #	OpenSSL::Crypto
 #)
 
-add_executable( key_test 
-	key_test.cpp 
+#add_executable( key_test
+#	key_test.cpp
+#)
+#target_link_libraries( key_test
+#	bryllite-common
+#	bryllite-core
+#	${Boost_LIBRARIES}
+#	OpenSSL::Crypto
+#)
+
+#add_executable( bcp_test
+#	bcp_test.cpp
+#	node_message.inl
+#)
+#target_link_libraries( bcp_test
+#	bryllite-common
+#	bryllite-core
+#	${Boost_LIBRARIES}
+#	OpenSSL::Crypto
+#)
+
+add_executable( runtime-test
+	runtime_test.cpp
 )
-target_link_libraries( key_test 
-	bryllite-common 
-	bryllite-core 
-	${Boost_LIBRARIES} 
+target_link_libraries( runtime-test
+	bryllite-common
+	bryllite-core
+	${Boost_LIBRARIES}
 	OpenSSL::Crypto
 )
 
-add_subdirectory( bcp_mono )
+#add_subdirectory( bcp_mono )
 
+#add_subdirectory( p2p_server )
 
+#add_subdirectory( node-server )
+
+#add_subdirectory( node-server-mono )

@@ -9,10 +9,6 @@
 #if !defined( _BRYLLITE_PLATFORM_BRYLLITE_COMMON_LIB_EXCEPTION_HPP_ )
 #define _BRYLLITE_PLATFORM_BRYLLITE_COMMON_LIB_EXCEPTION_HPP_
 
-#include <string>
-
-#include "utils.hpp"
-
 // namespace bryllite
 namespace bryllite {
 
@@ -20,7 +16,7 @@ namespace bryllite {
 class exception
 {
 public:
-	exception();
+	exception() noexcept ;
 	exception( int errorCode );
 	exception( std::string errorMessage );
 	exception( int errorCode, std::string errorMessage );

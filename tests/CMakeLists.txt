@@ -1,7 +1,8 @@
 # development test
 add_subdirectory( dev )
 
-# unittest
-#add_subdirectory( unittest )
+# unit_test
+enable_testing()
+add_subdirectory( unit_test )
 
 

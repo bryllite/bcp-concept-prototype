@@ -1,6 +1,6 @@
 #pragma once
 
-#include <queue>
+#include <map>
 
 #include <bryllite-common.hpp>
 #include <bryllite-core.hpp>
@@ -8,6 +8,7 @@
 #include "node_message.inl"
 
 #include "_vector.hpp"
+#include "block_chain.hpp"
 
 
 // node status
@@ -46,14 +47,17 @@ class node
 	using block = bryllite::block;
 	using block_header = bryllite::block_header;
 	using transaction = bryllite::transaction;
+	using address = bryllite::address;
+	using ntp_timer = bryllite::ntp_timer;
 
 protected:
 	node_manager& _node_manager ;
 	int _idx;
 
 	bryllite::key_pair _key_pair;				// node key pair
+	block_chain _block_chain;					// block chain
 
-	std::map< unsigned int, block > _blocks;	// block list
+	ntp_timer _ntp_timer;
 
 	node_state _node_state;						// node current state
 	time_t _node_state_begin_time;				// node state start time (ms)
@@ -70,6 +74,7 @@ protected:
 	_vector<size_t> _received_new_round;
 	bool _new_round_message_sent;
 	time_t _current_round_time;
+	std::map< size_t, size_t > _map_new_round_message;	// new round messages list
 
 	////////////////////////
 	// node_state_new_round
@@ -113,6 +118,9 @@ public:
 	void set_state( node_state );
 	node_state get_state( void ) { return _node_state; };
 
+	time_t get_current_round_time(time_t& round);
+	time_t get_current_round_time(void);
+
 protected:
 	void request_block_sync( void );
 	bool request_new_round( size_t new_block_index );
@@ -127,7 +135,7 @@ protected:
 	bool get_block_hash( size_t block_index, uint256& hash );
 
 	// get balance of account
-	size_t balanceOf( std::string address );
+	uint64_t balanceOf( std::string address );
 
 protected:
 	void on_state_begin( node_state state );

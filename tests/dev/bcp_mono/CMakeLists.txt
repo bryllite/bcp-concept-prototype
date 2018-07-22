@@ -4,6 +4,7 @@ add_executable( bcp_mono
 	node_manager.cpp node_manager.hpp
 	node_message.inl 
 	_vector.cpp _vector.hpp
+	block_chain.cpp block_chain.hpp
 )
 
 target_link_libraries( bcp_mono 

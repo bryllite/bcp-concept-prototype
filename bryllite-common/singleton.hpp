@@ -9,7 +9,6 @@
 #if !defined( _BRYLLITE_PLATFORM_BRYLLITE_COMMON_LIB_SINGLETON_HPP_ )
 #define _BRYLLITE_PLATFORM_BRYLLITE_COMMON_LIB_SINGLETON_HPP_
 
-#include <cstdlib>
 
 // namespace bryllite
 namespace bryllite {

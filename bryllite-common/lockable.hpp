@@ -15,10 +15,8 @@
 #include <mutex>
 #endif // _WIN32
 
-#include "exception.hpp"
-#include "assert.hpp"
 
-#if defined(_WIN32) //&& (0)
+#if defined(_WIN32) && (0)
 #define _USE_CRITICAL_SECTION
 #endif
 
@@ -74,13 +72,16 @@ class smart_lock
 {
 public:
 	// lock with ctor
-	smart_lock( lockable* pLockable, time_t timeout, const char* filename, int line );
+//	smart_lock( lockable* pLockable, time_t timeout, const char* filename, int line );
+	// lock with ctor
+	smart_lock(lockable& lock, time_t timeout, const char* filename, int line);
 
 	// unlock with dtor
 	virtual ~smart_lock();
 
 private:
-	lockable* m_pLockable ;
+//	lockable* m_pLockable ;
+	lockable& m_lock;
 };
 
 }; // namespace bryllite

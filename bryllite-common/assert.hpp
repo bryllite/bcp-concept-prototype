@@ -9,10 +9,6 @@
 #if !defined( _BRYLLITE_PLATFORM_BRYLLITE_COMMON_LIB_ASSERT_HPP_ )
 #define _BRYLLITE_PLATFORM_BRYLLITE_COMMON_LIB_ASSERT_HPP_
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstdarg>
-#include <string.h>
 
  // __FILENAME__ ( source code filename only )
 #ifndef __FILENAME__ 
@@ -22,6 +18,7 @@
 #define	__FILENAME__	(strrchr(__FILE__, '/' ) ? strrchr( __FILE__, '/' ) + 1 : __FILE__ )
 #endif // _WIN32
 #endif // __FILENAME__
+
 
 // namespace bryllite
 namespace bryllite {

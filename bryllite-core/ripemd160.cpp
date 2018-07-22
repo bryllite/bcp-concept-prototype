@@ -21,9 +21,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-
-#include <string.h>
-
+#include "stdafx.hpp"
 #include "ripemd160.hpp"
 
 #define ROL(x, n) (((x) << (n)) | ((x) >> (32 - (n))))

@@ -1,0 +1,76 @@
+{
+	"node-limit":3,
+	"node-peers":
+	[
+		{ "id": 0, "host": "127.0.0.1", "port": 8300 },
+		{ "id": 1, "host": "127.0.0.1", "port": 8301 },
+		{ "id": 2, "host": "127.0.0.1", "port": 8302 },
+		{ "id": 3, "host": "127.0.0.1", "port": 8303 },
+		{ "id": 4, "host": "127.0.0.1", "port": 8304 }
+	],
+	"node-bridge-servers":
+	[
+		{ "id": 0, "host": "127.0.0.1", "port": 8400 },
+		{ "id": 1, "host": "127.0.0.1", "port": 8401 },
+		{ "id": 2, "host": "127.0.0.1", "port": 8402 },
+		{ "id": 3, "host": "127.0.0.1", "port": 8403 },
+		{ "id": 4, "host": "127.0.0.1", "port": 8404 }
+	],
+	"bridge-game-servers":
+	[
+		{ "id": 0, "host": "127.0.0.1", "port": 8500 },
+		{ "id": 1, "host": "127.0.0.1", "port": 8501 },
+		{ "id": 2, "host": "127.0.0.1", "port": 8502 },
+		{ "id": 3, "host": "127.0.0.1", "port": 8503 },
+		{ "id": 4, "host": "127.0.0.1", "port": 8504 }
+	],
+	"game-user-servers":
+	[
+		{ "id": 0, "host": "127.0.0.1", "port": 8600 },
+		{ "id": 1, "host": "127.0.0.1", "port": 8601 },
+		{ "id": 2, "host": "127.0.0.1", "port": 8602 },
+		{ "id": 3, "host": "127.0.0.1", "port": 8603 },
+		{ "id": 4, "host": "127.0.0.1", "port": 8604 }
+	],
+	"node-user-servers":
+	[
+		{ "id": 0, "host": "127.0.0.1", "port": 8700 },
+		{ "id": 1, "host": "127.0.0.1", "port": 8701 },
+		{ "id": 2, "host": "127.0.0.1", "port": 8702 },
+		{ "id": 3, "host": "127.0.0.1", "port": 8703 },
+		{ "id": 4, "host": "127.0.0.1", "port": 8704 }
+	],
+	"node-server":
+	{
+		"config": {
+			"data-dir": "data",
+			"log-dir": "logs",
+			"key-dir": "keys"
+		}
+	},
+	"bridge-server":
+	{
+		"config": {
+			"data-dir": "data",
+			"log-dir": "logs",
+			"key-dir": "keys"
+		}
+	},
+	"game-server":
+	{
+		"config": {
+			"data-dir": "data",
+			"log-dir": "logs",
+			"key-dir": "keys"
+		}
+	},
+	"game-client":
+	{
+		"config": {
+			"data-dir": "data",
+			"log-dir": "logs",
+			"key-dir": "keys"
+		}
+	},
+	"symbol": "BRC"
+}

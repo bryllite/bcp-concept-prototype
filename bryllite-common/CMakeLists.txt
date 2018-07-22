@@ -8,13 +8,11 @@ set( bryllite-common-sources
 	timer.cpp timer.hpp
 	exception.cpp exception.hpp
 	lockable.cpp lockable.hpp
-	colors.cpp colors.hpp
-	log.cpp log.hpp
+	clog.cpp clog.hpp
 	threadable.cpp threadable.hpp
 	fsm.cpp fsm.hpp
-#	enum.hpp
-#	nlohmann/json.hpp
 	bryllite-common.cpp bryllite-common.hpp
+	stdafx.cpp stdafx.hpp
 )
 
 add_library( bryllite-common STATIC ${bryllite-common-sources} )

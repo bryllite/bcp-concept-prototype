@@ -1,26 +1,24 @@
 #pragma once
 
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
-
-#include "message.inl"
-
-
 // namespace bryllite::net
 namespace bryllite { namespace net {
 
 // peer session
 class peer_session
 {
+	friend class peer_host;
 	using udp = boost::asio::ip::udp;
 protected:
+	std::string _id;
 	udp::endpoint _endpoint;
+	boost::asio::streambuf _write_buffer;				// write buffer
 	time_t _heartbeat;
+	bool _self;
 
 public:
 	peer_session();
-	peer_session( udp::endpoint endpoint );
-	peer_session( const char* host, unsigned short port );
+	peer_session( std::string id, udp::endpoint endpoint, bool self = false );
+	peer_session( std::string id, const char* host, unsigned short port, bool self = false );
 
 	void touch( void );
 	bool alive( time_t time );
@@ -28,9 +26,12 @@ public:
 	udp::endpoint ep(void);
 
 	// unique id ( "127.0.0.1:8888" )
+	std::string uid( void );
 	std::string id( void );
 	boost::asio::ip::address address( void );
 	unsigned short port( void );
+
+	bool self( void );
 };
 
 
@@ -42,14 +43,15 @@ class peer_host
 protected:
 	boost::asio::io_service _ios;									// io_service
 	udp::socket _socket;											// socket
-	boost::asio::streambuf _read_buffer, _write_buffer;				// read/write buffer
 	udp::endpoint _local_endpoint, _remote_endpoint;				// local/remote endpoint
+	boost::asio::streambuf _read_buffer;							// read buffer
+	size_t _read_buffer_pos;
 	std::vector< std::unique_ptr< std::thread > > _io_threads;		// threads for io_service
 	std::vector< std::shared_ptr<peer_session> > _peers;
 	bryllite::lockable _peer_lock;									// peer list lock
 
 public:
-	peer_host() : _socket( _ios ) {
+	peer_host() : _socket( _ios ), _read_buffer_pos(0) {
 	};
 
 	// peer host start & stop
@@ -67,8 +69,8 @@ public:
 	bool peer_sendall( const char* data, size_t size );
 
 	// append authorized peer
-	bool peer_append( const char* host, unsigned short port );
-	bool peer_append( udp::endpoint peer );
+	bool peer_append( std::string id, const char* host, unsigned short port, bool self );
+	bool peer_append( std::string id, udp::endpoint peer, bool self );
 
 	// get peer session
 	peer_session* peer_find( udp::endpoint peer );
@@ -80,12 +82,12 @@ public:
 	size_t peer_count( void );
 
 protected:
-	virtual peer_session* new_peer_session( udp::endpoint peer );
+	virtual peer_session* new_peer_session( std::string id, udp::endpoint peer, bool self );
 
 protected:
 	// message callback
-	virtual void onPeerMessage( udp::endpoint peer, message* msg ) {} ;	
-	virtual void onPeerWrite( udp::endpoint peer, message* msg ) {};
+	virtual void onPeerMessage( udp::endpoint peer, message* msg ) ;	
+	virtual void onPeerWrite( udp::endpoint peer, message* msg ) ;
 
 private:
 	// io handler

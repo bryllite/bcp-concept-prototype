@@ -9,15 +9,6 @@
 #if !defined( _BRYLLITE_PLATFORM_BRYLLITE_COMMON_LIB_UTILS_HPP_ )
 #define _BRYLLITE_PLATFORM_BRYLLITE_COMMON_LIB_UTILS_HPP_
 
-#include <string>
-#include <vector>
-#include <cstdarg>
-#include <thread>
-#include <chrono>
-#include <memory>
-#include <atomic>
-#include <sstream>
-
 // #pragma 와 함께 써야한다.
 // e.g. #pragma _TODO("언제까지 이 일을 해야함")
 #define	__MAKESTRING_HELPER(x)	#x
@@ -67,6 +58,10 @@ namespace bryllite {
 	// hex string -> byte array
 	void toBytes(std::string str, unsigned char* data, size_t data_len);
 
+	std::string byte_to_hex( uint8_t ch );
+	std::string bytes_to_hex( std::vector<uint8_t> vch );
+	std::string bytes_to_hex( unsigned char* data, size_t len );
+	std::vector<uint8_t> hex_to_bytes( std::string hex );
 
 #define		NAMESPACE_BEGIN(x)		namespace x {
 #define		NAMESPACE_END			}

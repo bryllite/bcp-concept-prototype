@@ -21,17 +21,6 @@ https://github.com/okdshin/PicoSHA2
 */
 #pragma once
 
-#include <bryllite-common.hpp>
-#include <openssl/sha.h>
-
-#include <algorithm>
-#include <cassert>
-#include <iterator>
-#include <sstream>
-#include <vector>
-
-#include "uint256.hpp"
-
 #ifndef SHA256_BUFFER_SIZE_FOR_INPUT_ITERATOR
 #define SHA256_BUFFER_SIZE_FOR_INPUT_ITERATOR \
     1048576  //=1024*1024: default is 1MB memory
@@ -55,6 +44,8 @@ std::string sha256_hex_string( byte* data, size_t data_len );
 // sha256 with uint256
 uint256 sha256( std::string data );
 uint256 sha256( byte* data, size_t data_len );
+std::string sha256s( std::string data );
+std::string sha256s( byte* data, size_t data_len );
 
 namespace detail {
 	inline byte_t mask_8bit( byte_t x ) { return x & 0xff; }

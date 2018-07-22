@@ -14,9 +14,6 @@
 #ifndef BITCOIN_BASE58_H
 #define BITCOIN_BASE58_H
 
-#include <string>
-#include <vector>
-
 /**
  * Encode a byte sequence as a base58-encoded string.
  * pbegin and pend cannot be nullptr, unless both are.
@@ -57,5 +54,12 @@ bool DecodeBase58Check(const char* psz, std::vector<unsigned char>& vchRet);
  * vector (vchRet), return true if decoding is successful
  */
 bool DecodeBase58Check(const std::string& str, std::vector<unsigned char>& vchRet);
+
+
+// encode/decode base58 check
+std::string encode_base58_check( byte prefix, std::string str );
+bool decode_base58_check( const char* psz, std::vector<byte>& vchOut );
+bool decode_base58_check( const std::string& str, std::vector<byte>& vchOut );
+
 
 #endif // BITCOIN_BASE58_H

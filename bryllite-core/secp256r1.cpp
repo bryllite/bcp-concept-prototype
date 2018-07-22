@@ -1,7 +1,6 @@
-#include <string.h>
-#include <openssl/sha.h>
-
+#include "stdafx.hpp"
 #include "secp256r1.hpp"
+
 #include "ripemd160.hpp"
 #include "base58.hpp"
 
@@ -934,13 +933,12 @@ static void ecc_point_decompress( EccPoint *p_point, const uint8_t p_compressed[
 	}
 }
 
-bool create_key_pair( uint256& priv_key, uint264& pub_key )
+bool create_key_pair( uint264& pub_key, uint256& priv_key )
 {
-	return create_key_pair( (byte*)&priv_key, (byte*)&pub_key );
+	return create_key_pair( (byte*)&pub_key, (byte*)&priv_key );
 }
 
-
-bool create_key_pair( byte private_key[ECC_BYTES], byte public_key[ECC_BYTES+1] )
+bool create_key_pair( byte public_key[ECC_BYTES+1], byte private_key[ECC_BYTES] )
 {
 	uint64_t l_private[NUM_ECC_DIGITS];
 	EccPoint l_public;
@@ -973,13 +971,13 @@ bool create_key_pair( byte private_key[ECC_BYTES], byte public_key[ECC_BYTES+1] 
 	return true;
 }
 
-bool make_shared_secret( const uint256 _private, const uint264 _public, uint256& _secret )
+bool make_shared_secret( const uint264 _public, const uint256 _private, uint256& _secret )
 {
-	return make_shared_secret( (const byte*)&_private, (const byte*)&_public, (byte*)&_secret );
+	return make_shared_secret( (const byte*)&_public, (const byte*)&_private, (byte*)&_secret );
 }
 
 
-bool make_shared_secret( const byte _private[ECC_BYTES], const byte _public[ECC_BYTES+1], byte _secret[ECC_BYTES] )
+bool make_shared_secret( const byte _public[ECC_BYTES+1], const byte _private[ECC_BYTES], byte _secret[ECC_BYTES] )
 {
 	EccPoint l_public;
 	uint64_t l_private[NUM_ECC_DIGITS];

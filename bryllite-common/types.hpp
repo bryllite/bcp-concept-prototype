@@ -1,14 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <map>
-#include <array>
-#include <string>
-#include <cstdio>
-#include <cstdlib>
-#include <cstdint>
-
-#include <boost/multiprecision/cpp_int.hpp>
 
 using byte = uint8_t;
 //using bytes = std::vector<byte>;

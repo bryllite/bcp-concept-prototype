@@ -3,9 +3,9 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <uint256.hpp>
-
-#include <utilstrencodings.hpp>
+#include "stdafx.hpp"
+#include "uint256.hpp"
+#include "utilstrencodings.hpp"
 
 #include <stdio.h>
 #include <string.h>

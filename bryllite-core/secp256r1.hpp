@@ -3,9 +3,6 @@
 // author: Ken MacKay
 #pragma once
 
-#include <bryllite-common.hpp>
-#include "uint256.hpp"
-
 
 // namespace bryllite
 namespace bryllite {
@@ -25,8 +22,8 @@ namespace bryllite {
 
 	Returns true if the key pair was generated successfully, false if an error occurred.
 	*/
-	bool create_key_pair( byte private_key[ECC_BYTES], byte public_key[ECC_BYTES+1] );
-	bool create_key_pair( uint256& priv_key, uint264& pub_key );
+	bool create_key_pair( byte public_key[ECC_BYTES+1], byte private_key[ECC_BYTES] );
+	bool create_key_pair( uint264& pub_key, uint256& priv_key );
 
 	/* make_shared_secret() function.
 	Compute a shared secret given your secret key and someone else's public key.
@@ -41,8 +38,8 @@ namespace bryllite {
 
 	Returns true if the shared secret was generated successfully, false if an error occurred.
 	*/
-	bool make_shared_secret( const byte _private[ECC_BYTES], const byte _public[ECC_BYTES+1], byte _secret[ECC_BYTES] );
-	bool make_shared_secret( const uint256 _private, const uint264 _public, uint256& _secret );
+	bool make_shared_secret( const byte _public[ECC_BYTES+1], const byte _private[ECC_BYTES], byte _secret[ECC_BYTES] );
+	bool make_shared_secret( const uint264 _public, const uint256 _private, uint256& _secret );
 
 	/* do_sign() function.
 	Generate an ECDSA signature for a given hash value.
