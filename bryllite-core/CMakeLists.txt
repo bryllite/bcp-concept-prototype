@@ -28,6 +28,7 @@ set( bryllite-core-sources
 	peer_client.cpp peer_client.hpp
 	peer_server.cpp peer_server.hpp
 	peer_session.cpp peer_session.hpp
+	bcp_timer.cpp bcp_timer.hpp
 	bcp_server.cpp bcp_server.hpp
 	bryllite-core.cpp bryllite-core.hpp
 	stdafx.cpp stdafx.hpp

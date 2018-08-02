@@ -13,6 +13,10 @@ public:
 	CAddress();
 	CAddress( std::string address );
 
+	void setNull(void);
+	bool isNull(void) const;
+	explicit operator bool() const;
+
 	bool empty( void ) const;
 	size_t length( void ) const;
 	std::string str( void ) const;

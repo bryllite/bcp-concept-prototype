@@ -30,8 +30,8 @@ public:
 	size_t sendall( message* msg );
 
 public:
-	int onTcpServerAccept( CTcpSession* session );
-	int onTcpServerDisconnect( CTcpSession* session, int reason );
-	int onTcpServerWrite( CTcpSession* session, message* msg, size_t bytes_trasnferred );
-	int onTcpServerMessage( CTcpSession* session, message* msg );
+	int onTcpServerAccept( CTcpSession* session ) override;
+	int onTcpServerDisconnect( CTcpSession* session, int reason ) override;
+	int onTcpServerWrite( CTcpSession* session, message* msg, size_t bytes_trasnferred ) override;
+	int onTcpServerMessage( CTcpSession* session, message* msg ) override;
 };

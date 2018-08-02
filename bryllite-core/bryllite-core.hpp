@@ -22,6 +22,8 @@
 #include "sha256.hpp"
 #include "base58.hpp"
 
+#include "bcp_timer.hpp"
+
 #include "coin.hpp"
 #include "address.hpp"
 #include "publickey.hpp"
@@ -41,6 +43,7 @@
 #include "tcp_client.hpp"
 #include "tcp_server.hpp"
 #include "udp_server.hpp"
+#include "udp_client.hpp"
 
 #include "peer_host.hpp"
 #include "peer_session.hpp"

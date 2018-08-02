@@ -38,6 +38,7 @@
 #include <boost/function.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 
 // top level header
 #include "version.hpp"

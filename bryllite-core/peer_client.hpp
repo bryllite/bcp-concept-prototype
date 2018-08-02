@@ -50,7 +50,7 @@ public:
 	bool connected( void );
 
 	// get peer_id
-	int peer_id( void );
+	NodeID peer_id( void );
 
 	// connect to peer
 	bool connect_to( PeerData peer_data );

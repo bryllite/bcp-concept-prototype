@@ -33,21 +33,22 @@ public:
 	// game server main procedure
 	int onMain( void );
 
+protected:
 	// callback timer handler
-	void onTimeOut( timer_id id, void* pContext );
+	int onTimeOut( timer_id id, void* pContext ) override;
 
 public:
-	int onUserServerAccept(CTcpSession* session);
-	int onUserServerDisconnect(CTcpSession* session, int reason );
-	int onUserServerWrite(CTcpSession* session, message* msg, size_t bytes_transferred );
-	int onUserServerMessage( CTcpSession* session, message* msg );
+	int onUserServerAccept(CTcpSession* session) override;
+	int onUserServerDisconnect(CTcpSession* session, int reason ) override;
+	int onUserServerWrite(CTcpSession* session, message* msg, size_t bytes_transferred ) override;
+	int onUserServerMessage( CTcpSession* session, message* msg ) override;
 
 public:
-	int onTcpClientConnected( CTcpClient* client, bool connected );
-	int onTcpClientDisconnected( CTcpClient* client, int reason );
-	int onTcpClientWrite( CTcpClient* client, message* msg, size_t bytes_transferred );
-	int onTcpClientMessage( CTcpClient* client, message* msg );
-	int onBridgeMessageHeaderSignReq( message_header_sign_req* msg );
+	int onTcpClientConnected( CTcpClient* client, bool connected ) override;
+	int onTcpClientDisconnected( CTcpClient* client, int reason ) override;
+	int onTcpClientWrite( CTcpClient* client, message* msg, size_t bytes_transferred ) override;
+	int onTcpClientMessage( CTcpClient* client, message* msg ) override;
 
 protected:
+	int onBridgeMessageHeaderSignReq( message_header_sign_req* msg );
 };

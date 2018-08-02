@@ -93,7 +93,7 @@ public:
 		{
 			po::options_description desc( "Program Usage", 1024, 512 );
 			desc.add_options()
-				( "node-id,i", po::value<int>( &(_app_config._node_id) )->required(), "set node id" )
+				( "node-id,i", po::value<NodeID>( &(_app_config._node_id) )->required(), "set node id" )
 				( "node-limit,l", po::value<size_t>( &(_app_config._max_node_count) ), "set max node limits" )
 				( "config,c", po::value<std::string>( &_app_config._config_file )->default_value( "bryllite.config.json" ), "set config file path" )
 				( "version,v", "show version information" )

@@ -31,8 +31,8 @@ public:
 	bool write( message* msg );
 
 public:
-	int onTcpClientConnected( CTcpClient* client, bool connected );
-	int onTcpClientDisconnected( CTcpClient* client, int reason );
-	int onTcpClientWrite( CTcpClient* client, message* msg, size_t bytes_transferred );
-	int onTcpClientMessage( CTcpClient* client, message* msg );
+	int onTcpClientConnected( CTcpClient* client, bool connected ) override;
+	int onTcpClientDisconnected( CTcpClient* client, int reason ) override;
+	int onTcpClientWrite( CTcpClient* client, message* msg, size_t bytes_transferred ) override;
+	int onTcpClientMessage( CTcpClient* client, message* msg ) override;
 };

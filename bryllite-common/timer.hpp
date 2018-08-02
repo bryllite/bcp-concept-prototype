@@ -15,7 +15,7 @@ typedef int timer_id;
 class ICallbackTimer
 {
 public:
-	virtual void onTimeOut( timer_id id, void* context ) = 0;
+	virtual int onTimeOut( timer_id id, void* context ) = 0;
 };
 
 
@@ -93,43 +93,6 @@ protected:
 };
 
 
-// network time protocol timer
-class ntp_timer
-{
-	enum { ntp_default_port = 123 };
-protected:
-	time_t _ntp_time;				// ntp get time (ms)
-	time_t _local_timestamp;		// local time (ms)
-
-	std::string _host;		// ntp host
-	unsigned short _port;	// ntp port
-
-	bool _sync;				// is time synchronized?
-
-public:
-	ntp_timer();
-	ntp_timer(std::string host, unsigned short port);
-
-	bool sync(time_t timeout);
-	bool sync(std::string host, unsigned short port, time_t timeout);
-
-	// time (sec)
-	time_t time(void);
-
-	// time (msec)
-	time_t timestamp(void);
-
-	// get time difference
-	time_t time_diff( void );
-
-	// get server time
-	static time_t get_ntp_time(std::string host, unsigned short port);
-
-protected:
-	bool synchronize( std::string host, unsigned short port, time_t timeout );
-};
-
-
 // get formatted date & time code with time shift in sec
 // e.g. format="%y-%m-%d", output="2018-05-14"
 // e.g. format="%h:%i:%s", output="04:54:30"
@@ -140,5 +103,7 @@ std::string timeCode(const char* format = "%h:%i:%s", time_t time_shift_sec = 0)
 
 
 }; //namespace bryllite
+
+
 
 #endif //_BRYLLITE_PLATFORM_BRYLLITE_COMMON_LIB_TIMER_HPP_

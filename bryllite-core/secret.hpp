@@ -15,6 +15,8 @@ public:
 
 	// is null?
 	bool isNull( void ) const;
+	void setNull(void);
+	explicit operator bool() const;
 
 	// sign
 	bool sign( CKeyPair keyPair, uint256 hash );

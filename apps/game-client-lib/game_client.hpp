@@ -23,6 +23,9 @@ protected:
 public:
 	game_client(boost::asio::io_service& ios, app_config& appConfig);
 
+	// user idx
+	size_t idx(void);
+
 	// start & stop client
 	bool start( size_t idx );
 	bool stop( void );
@@ -37,24 +40,23 @@ public:
 	// game client main procedure
 	int onMain( void );
 
+protected:
 	// callback timer handler
-	void onTimeOut( timer_id id, void* pContext );
-
-	size_t idx( void );
+	int onTimeOut( timer_id id, void* pContext ) override;
 
 public:
-	int onUserClientConnect( CTcpClient* client, bool connected );
-	int onUserClientDisconnect( CTcpClient* client, int reason );
-	int onUserClientWrite( CTcpClient* client, message* msg, size_t bytes_transferred );
-	int onUserClientMessage( CTcpClient* client, message* msg );
+	int onUserClientConnect( CTcpClient* client, bool connected ) override;
+	int onUserClientDisconnect( CTcpClient* client, int reason ) override;
+	int onUserClientWrite( CTcpClient* client, message* msg, size_t bytes_transferred ) override;
+	int onUserClientMessage( CTcpClient* client, message* msg ) override;
 protected:
 	int onGameMessageHeaderSignReq( message_header_sign_req* msg );
 
 public:
-	int onNodeClientConnect( CTcpClient* client, bool connected );
-	int onNodeClientDisconnect( CTcpClient* client, int reason );
-	int onNodeClientWrite( CTcpClient* client, message* msg, size_t bytes_transferred );
-	int onNodeClientMessage( CTcpClient* client, message* msg );
+	int onNodeClientConnect( CTcpClient* client, bool connected ) override;
+	int onNodeClientDisconnect( CTcpClient* client, int reason ) override;
+	int onNodeClientWrite( CTcpClient* client, message* msg, size_t bytes_transferred ) override;
+	int onNodeClientMessage( CTcpClient* client, message* msg ) override;
 protected:
 	int onNodeMessagePing( message_ping* msg );
 	int onNodeMessageBalanceAck( message_balance_ack* msg );

@@ -4,6 +4,15 @@
 
 #include "stdafx.hpp"
 #include "base58.hpp"
+/*
+#include <assert.h>
+#include <string.h>
+
+#include "base58.hpp"
+//#include <hash.h>
+#include "uint256.hpp"
+#include "sha256.hpp"
+*/
 
 
 /** All alphanumeric characters except for "0", "I", "O", and "l" */

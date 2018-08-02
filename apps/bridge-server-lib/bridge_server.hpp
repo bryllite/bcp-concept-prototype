@@ -43,20 +43,22 @@ public:
 	// bridge_server main procedure
 	int onMain( void );
 
+protected:
 	// callback timer
-	void onTimeOut( timer_id id, void* pContext );
 	enum { timer_id_reconnect = 1024 + 1 };
+	int onTimeOut( timer_id id, void* pContext ) override;
 
 public:
-	int onTcpClientConnected( CTcpClient* tcp_client, bool connected );
-	int onTcpClientDisconnected( CTcpClient* tcp_client, int reason );
-	int onTcpClientWrite( CTcpClient* tcp_client, message* msg, size_t bytes_transferred );
-	int onTcpClientMessage( CTcpClient* tcp_client, message* msg );
+	int onTcpClientConnected( CTcpClient* tcp_client, bool connected ) override;
+	int onTcpClientDisconnected( CTcpClient* tcp_client, int reason ) override;
+	int onTcpClientWrite( CTcpClient* tcp_client, message* msg, size_t bytes_transferred ) override;
+	int onTcpClientMessage( CTcpClient* tcp_client, message* msg ) override;
+protected:
 	int onNodeMessageHeaderSignReq( message_header_sign_req* msg );
 
 public:
-	int onGameServerAccept(CTcpSession* session);
-	int onGameServerDisconnect(CTcpSession* session, int reason );
-	int onGameServerWrite(CTcpSession* session, message* msg, size_t bytes_transferred );
-	int onGameServerMessage( CTcpSession* session, message* msg );
+	int onGameServerAccept(CTcpSession* session) override;
+	int onGameServerDisconnect(CTcpSession* session, int reason ) override;
+	int onGameServerWrite(CTcpSession* session, message* msg, size_t bytes_transferred ) override;
+	int onGameServerMessage( CTcpSession* session, message* msg ) override;
 };

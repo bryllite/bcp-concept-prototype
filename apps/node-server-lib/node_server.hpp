@@ -3,7 +3,7 @@
 class app_config;
 
 // node server class
-class CNodeServer final : public IPeerServer, public IBridgeServer, public IUserServer, public ICallbackTimer, public IBcpServerCallback
+class CNodeServer final : public CBcpHost, public IPeerServer, public IBridgeServer, public IUserServer, public ICallbackTimer
 {
 	using callback_timer = bryllite::callback_timer;
 
@@ -12,7 +12,7 @@ private:
 	bryllite::lockable _lock;
 
 	boost::asio::io_service _io_service;
-	std::vector< std::unique_ptr< std::thread > > _io_threads;
+//	std::vector< std::unique_ptr< std::thread > > _io_threads;
 
 	// config structure
 	app_config& _app_config;
@@ -38,8 +38,8 @@ private:
 	// callback timer
 	callback_timer _callback_timer;
 
-	// bcp class
-	CBcpServer _bcp_server;
+	// bcp timer
+	CBcpTimer _bcp_timer;
 
 	// pingid
 	size_t _ping_id;
@@ -49,7 +49,7 @@ public:
 	CNodeServer(app_config& appConfig);
 
 	// node id
-	int node_id( void );
+	NodeID node_id( void );
 
 	// start/stop server
 	bool start_server( size_t io_worker_thread = 1 );
@@ -66,6 +66,9 @@ public:
 	size_t connected_peer_count( void );
 	size_t disconnected_peer_count( void );
 
+	// is authorized peer?
+	bool authorized_peer(CPeer* peer);
+
 	// main processor
 	int update( void );
 
@@ -75,6 +78,11 @@ public:
 
 	// send message to bridge server
 	size_t sendto_bridge( message* msg );
+
+public:
+	bryllite::lockable& lockable(void);
+	CBcpTimer& bcpTimer(void);
+	RoundIdx nextRound(void);
 
 protected:
 	// create block data
@@ -95,26 +103,31 @@ private:
 	enum {
 		timer_id_ping = 100,
 		timer_id_connect_peers,
+		timer_id_time_sync,
 	};
 
+protected:
 	// callback timer handler
-	void onTimeOut( timer_id id, void* pContext );
-	void onTimeOutPing( void* pContext );
-	void onTimeOutConnectPeers( void* pContext );
+	int onTimeOut( timer_id id, void* pContext ) override;
+	int onTimeOutPing( void* pContext );
+	int onTimeOutConnectPeers( void* pContext );
+	int onTimeOutTimeSync(void* pContext);
 
 	// peer server handler
 public:
 	// IPeerServer callback
-	int onPeerSessionConnected( CPeerSession* peer_session, bool connected );
-	int onPeerSessionDisconnected( CPeer* peer, int reason );
-	int onPeerSessionWrite( CPeer* peer, message* msg );
-	int onPeerClientConnected( CPeer* peer, bool connected );
-	int onPeerClientDisconnected( CPeer* peer, int reason );
-	int onPeerClientWrite( CPeer* peer, message* msg );
-	int onPeerMessage( CPeer* sender, message* msg );
+	int onPeerSessionConnected( CPeerSession* peer_session, bool connected ) override;
+	int onPeerSessionDisconnected( CPeer* peer, int reason ) override;
+	int onPeerSessionWrite( CPeer* peer, message* msg ) override;
+	int onPeerClientConnected( CPeer* peer, bool connected ) override;
+	int onPeerClientDisconnected( CPeer* peer, int reason ) override;
+	int onPeerClientWrite( CPeer* peer, message* msg ) override;
+	int onPeerMessage( CPeer* sender, message* msg ) override;
 protected:
 	// peer message handler
 	int onPeerMessagePeerId( CPeer* sender, node_message_peer_id* msg );
+	int onPeerMessageTimeReq(CPeer* sender, node_message_time_req* msg);
+	int onPeerMessageTimeAck(CPeer* sender, node_message_time_ack* msg);
 	int onPeerMessageBlockNotify( CPeer* sender, node_message_block_notify* msg );
 	int onPeerMessageBlockReq( CPeer* sender, node_message_block_req* msg );
 	int onPeerMessageNewRound( CPeer* sender, node_message_new_round* msg );
@@ -127,31 +140,46 @@ protected:
 
 	// node-bridge server handler
 public:
-	int onBridgeAccept( CTcpSession* session );
-	int onBridgeDisconnected( CTcpSession* session, int reason );
-	int onBridgeWrite( CTcpSession* session, message* msg, size_t bytes_transferred );
-	int onBridgeMessage( CTcpSession* session, message* msg );
+	int onBridgeAccept( CTcpSession* session ) override;
+	int onBridgeDisconnected( CTcpSession* session, int reason ) override;
+	int onBridgeWrite( CTcpSession* session, message* msg, size_t bytes_transferred ) override;
+	int onBridgeMessage( CTcpSession* session, message* msg ) override;
 
 	// node-user server handler
 public:
-	int onUserAccept( CTcpSession* session );
-	int onUserDisconnected( CTcpSession* session, int reason );
-	int onUserWrite( CTcpSession* session, message* msg, size_t bytes_transferred );
-	int onUserMessage( CTcpSession* session, message* msg );
+	int onUserAccept( CTcpSession* session ) override;
+	int onUserDisconnected( CTcpSession* session, int reason ) override;
+	int onUserWrite( CTcpSession* session, message* msg, size_t bytes_transferred ) override;
+	int onUserMessage( CTcpSession* session, message* msg ) override;
 protected:
 	int onUserMessageHeaderSignAck( CTcpSession* session, message_header_sign_ack* msg );
 	int onUserMessageBalanceReq( CTcpSession* session, message_balance_req* msg );
 
+/*
 	// CBcpServer handler
 public:
-	size_t qualify_votes_count( void );
-	int onBcpNewRoundReady( size_t prevRoundIdx );
-	int onBcpNewRoundStart( size_t roundIdx );
-	int onBcpProposeStart( size_t roundIdx );
-	int onBcpVoteStart( size_t roundIdx );
-	int onBcpCommitStart( size_t roundIdx, CBlockHeader vote_header );
-	bool onBcpVerifyBlock( size_t roundIdx, CBlock verify_block );
-	int onBcpNewBlock( size_t roundIdx, CBlock newBlock );
-	int onBcpTimeout( size_t roundIdx );
+	size_t qualify_votes_count( void ) override;
+	int onBcpNewRoundReady( size_t prevRoundIdx ) override;
+	int onBcpNewRoundStart( size_t roundIdx ) override;
+	int onBcpProposeStart( size_t roundIdx ) override;
+	int onBcpVoteStart( size_t roundIdx ) override;
+	int onBcpCommitStart( size_t roundIdx, CBlockHeader vote_header ) override;
+	bool onBcpVerifyBlock( size_t roundIdx, CBlock verify_block ) override;
+	int onBcpNewBlock( size_t roundIdx, CBlock newBlock ) override;
+	int onBcpTimeout( size_t roundIdx ) override;
+*/
+
+protected:
+	// BCP callback interface
+	size_t qualifyVotes(void) override;
+	int onBcpNewRoundMessage(RoundIdx newRound) override;
+	int onBcpProofOfParticipationStart(CRoundHelper& roundHelper) override;
+	int onBcpProposeStart(CRoundHelper& roundHelper, const CBlockHeader& header) override;
+	int onBcpVoteStart(CRoundHelper& roundHelper, const CBlockHeader& header) override;
+	int onBcpCommitStart(CRoundHelper& roundHelper, const CBlockHeader& header) override;
+	int onBcpCommit(CRoundHelper& roundHelper, const CBlock& block) override;
+	int onBcpNewBlock(CRoundHelper& roundHelper, const CBlock& newBlock) override;
+	int onBcpAbandoned(CRoundHelper& roundHelper) override;
+
 
 };

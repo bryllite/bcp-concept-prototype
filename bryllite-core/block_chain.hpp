@@ -6,7 +6,7 @@ class CBlockChain
 {
 public:
 	bryllite::lockable& _lock;
-	std::map< size_t, CBlock > _mapBlocks;
+	std::map< BlockIdx, CBlock > _mapBlocks;
 	std::map< std::string, uint64_t > _accountBalances;
 
 	// thread for file write
@@ -15,7 +15,7 @@ public:
 
 	bool _stop;
 
-	size_t _last_block_index;
+	BlockIdx _last_block_index;
 
 	std::string& _data_dir;
 
@@ -41,14 +41,14 @@ public:
 	// block header
 	struct block_header
 	{
-		size_t block_idx;
+		BlockIdx block_idx;
 		size_t block_len;
 
 		block_header() : block_idx(0), block_len(0)
 		{
 		};
 
-		block_header( size_t idx, size_t len ) : block_idx(idx), block_len(len)
+		block_header( BlockIdx idx, size_t len ) : block_idx(idx), block_len(len)
 		{
 		};
 	};
@@ -64,34 +64,36 @@ public:
 
 	// block height & last block index
 	size_t size( void );
-	size_t last_block_index( void );
+	BlockIdx last_block_index( void );
 
 	// verify block
-	bool verify_block( CBlock block_ );
+	bool verify_block( CBlock block );
 
 	// append block
-	bool append_block( CBlock block_ );
+	bool append_block( CBlock block );
 
 	// update balance
-	bool update_balance( CBlock block_ );
+	bool update_balance( CBlock block );
 
-	CBlock find_block( size_t block_idx );
-	bool find_block( size_t block_idx, CBlock& block );
+	CBlock find_block( BlockIdx idx );
+	bool find_block( BlockIdx idx, CBlock& block );
 
 	// get balance of account
 	uint64_t balanceOf( std::string account );
 
 	// get block header hash
-	uint256 get_block_hash( size_t block_idx );
+	uint256 get_block_hash( BlockIdx idx );
 
 	// block exists?
-	bool block_exists( size_t block_idx );
+	bool block_exists( BlockIdx idx );
 
 	// block synchronized?
-	bool synchronized_for( size_t block_idx );
+	bool synchronized_for( BlockIdx idx );
 
 	// block chain dump
 	std::string to_string( void );
+
+	BlockIdx nextRound(void);
 
 protected:
 	bool _saveDB(std::string fileName);

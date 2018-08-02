@@ -64,7 +64,7 @@ namespace bryllite {
 	std::vector<uint8_t> hex_to_bytes( std::string hex );
 
 #define		NAMESPACE_BEGIN(x)		namespace x {
-#define		NAMESPACE_END			}
+#define		NAMESPACE_END(x)		}
 
 
 }; // namespace bryllite

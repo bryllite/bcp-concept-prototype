@@ -77,11 +77,12 @@ public:
 
 	PeerData& peer_host( void );
 
+	// is authorized peer?
+	bool authorized_peer(CPeer* peer);
 protected:
 	// session start/stop
 	bool session_start( CPeerSession* session );
 	bool session_stop( CPeerSession* session );
-
 
 protected:
 	// accept client socket

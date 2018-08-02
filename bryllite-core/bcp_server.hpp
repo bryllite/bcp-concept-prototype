@@ -104,7 +104,6 @@ public:
 // BCP class
 class CBcpServer : public ICallbackTimer
 {
-	using ntp_timer = bryllite::ntp_timer;
 	using callback_timer = bryllite::callback_timer;
 
 	// bcp timeout in ms
@@ -128,8 +127,10 @@ protected:
 	// lock object of CNodeServer
 	bryllite::lockable& _lock;
 
-	// NTP timer & callback timer
-	ntp_timer _ntp_timer;
+	// CBcpTimer ref
+	CBcpTimer& _bcp_timer;
+
+	// callback timer
 	callback_timer _callback_timer;
 
 	// BCP callback interface
@@ -149,7 +150,7 @@ protected:
 	std::map< size_t, std::unique_ptr< CBcpData > > _bcp_data;
 
 public:
-	CBcpServer( IBcpServerCallback& bcp_callback, bryllite::lockable& lock );
+	CBcpServer( IBcpServerCallback& bcp_callback, bryllite::lockable& lock, CBcpTimer& bcpTimer );
 
 	// start/stop bcp
 	bool start( void );
@@ -164,22 +165,22 @@ public:
 	bool ready( void );
 
 public:
-	time_t timestamp( void );
+	time_t getTime( void );
 
 	// timeline in (ms)
 	time_t timeline( time_t& timeContext );
 	time_t timeline( void );
 
-public:
-	enum {
+protected:
+	enum 
+	{
 		timeout_proof_of_participation = 0,
 		timeout_propose,
 		timeout_vote,
 		timeout_commit
 	};
 
-	void onTimeOut( timer_id id, void* pContext );
-protected:
+	int onTimeOut(timer_id id, void* pContext) override;
 	void onTimeOutProofOfParticipation( void );
 	void onTimeOutPropose( void );
 	void onTimeOutVote( void );

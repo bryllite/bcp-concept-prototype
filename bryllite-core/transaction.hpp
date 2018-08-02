@@ -127,6 +127,7 @@ protected:
 	// tx type ( normal, coinbase, contract, ... )
 	enum class Type
 	{
+		NullTransaction,	// null transaction
 		NormalTransaction,	// normal transaction ( transfer )
 		CoinBase,			// coinbase block reward transaction ( block reward, event block reward )
 		Contract,			// Contract transaction
@@ -156,7 +157,9 @@ public:
 	CTransaction(std::string receiver, uint64_t value );
 
 	// is null tx?
+	void setNull(void);
 	bool isNull(void) const;
+	explicit operator bool() const;
 
 	// accessor
 	Type type(void) const;
@@ -235,7 +238,7 @@ public:
 	bool get(size_t idx, CTransaction& tx);
 
 	// create merkle root hash
-	uint256 compute_merkle_root(void);
+	uint256 compute_merkle_root(void) const;
 
 	// verify all tx
 	bool verify(void);

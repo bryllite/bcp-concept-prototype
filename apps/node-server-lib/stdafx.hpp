@@ -10,7 +10,10 @@
 #include <boost/filesystem.hpp>
 
 #include "app_config.hpp"
+#include "bcp/bcp_config.hpp"
+#include "bcp/round_provider.hpp"
+#include "bcp/round_helper.hpp"
+#include "bcp/bcp_host.hpp"
 #include "bridge_server.hpp"
 #include "user_server.hpp"
-//#include "bcp.hpp"
 #include "node_server.hpp"

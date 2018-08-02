@@ -56,7 +56,9 @@ enum message_id {
 	node_message_start = 1000,
 	node_message_system_start,
 		node_message_peer_id_id,
-	node_message_system_end,
+		node_message_time_req_id,
+		node_message_time_ack_id,
+		node_message_system_end,
 	node_message_user_start = node_message_start + 100,
 		node_message_block_req_id,
 		node_message_block_notify_id,
@@ -139,9 +141,7 @@ protected:
 	unsigned short _msgid;
 //	unsigned short _ver;
 };
-
 #pragma pack(pop)	// bytes align for packet
-
 
 }};// namespace bryllite::net
 
@@ -184,6 +184,33 @@ public:
 	message_pong( size_t id ) : _ctor( message_pong ), _id( id ) {
 	};
 };
+
+
+// time req
+class node_message_time_req : public message
+{
+public:
+	time_t _localTime;
+
+public:
+	node_message_time_req(time_t localTime) : _ctor(node_message_time_req), _localTime(localTime)
+	{
+	};
+};
+
+// time ack
+class node_message_time_ack : public message
+{
+public:
+	time_t _localTime;
+	time_t _remoteTime;
+
+public:
+	node_message_time_ack(time_t localTime, time_t remoteTime) : _ctor(node_message_time_ack), _localTime(localTime), _remoteTime(remoteTime)
+	{
+	};
+};
+
 
 
 // block header sign request 
@@ -307,10 +334,10 @@ class node_message_peer_id : public message
 public:
 	PeerData _peer_data;
 	CSecret _secret;
-	size_t _block_height;
+	BlockIdx _block_height;
 
 public:
-	node_message_peer_id( PeerData peer_data, CSecret secret, size_t block_height ) : _ctor(node_message_peer_id), _peer_data(peer_data), _secret(secret), _block_height(block_height)
+	node_message_peer_id( PeerData peer_data, CSecret secret, BlockIdx block_height ) : _ctor(node_message_peer_id), _peer_data(peer_data), _secret(secret), _block_height(block_height)
 	{
 	};
 
@@ -323,14 +350,14 @@ public:
 class node_message_block_req : public message
 {
 public:
-	size_t _block_idx;
+	BlockIdx _block_idx;
 
 public:
 	node_message_block_req( size_t block_idx ) : _ctor(node_message_block_req), _block_idx(block_idx)
 	{
 	};
 
-	size_t idx( void )
+	BlockIdx idx( void )
 	{
 		return _block_idx;
 	};
@@ -339,16 +366,16 @@ public:
 class node_message_block_notify : public message
 {
 public:
-	size_t _block_idx;
+	BlockIdx _block_idx;
 	byte _block_data[ CBlock::max_block_size + 1 ];
 
 public:
-	node_message_block_notify( size_t block_idx, CBlock block ) : _ctor(node_message_block_notify), _block_idx(block_idx)
+	node_message_block_notify( BlockIdx block_idx, CBlock block ) : _ctor(node_message_block_notify), _block_idx(block_idx)
 	{
 		block.serialize( _block_data, sizeof(_block_data) );
 	};
 
-	size_t idx( void )
+	BlockIdx idx( void )
 	{
 		return _block_idx;
 	};
@@ -365,10 +392,10 @@ public:
 class node_message_new_round : public message
 {
 public:
-	size_t _new_block_index;
+	BlockIdx _new_block_index;
 
 public:
-	node_message_new_round( size_t new_block_index ) : _ctor( node_message_new_round ), _new_block_index( new_block_index ) {
+	node_message_new_round( BlockIdx new_block_index ) : _ctor( node_message_new_round ), _new_block_index( new_block_index ) {
 	};
 };
 
