@@ -15,12 +15,14 @@
 
 #include "bcp_timer.hpp"
 
+#include "coin.hpp"
 #include "address.hpp"
 #include "publickey.hpp"
 #include "privatekey.hpp"
 #include "keypair.hpp"
 
-#include "coin.hpp"
+#include "leveldb.hpp"
+
 #include "secret.hpp"
 #include "account.hpp"
 #include "transaction.hpp"

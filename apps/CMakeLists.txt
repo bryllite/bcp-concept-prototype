@@ -21,3 +21,6 @@ add_subdirectory( game-server-app )
 
 # bryllite game client app
 add_subdirectory( game-client-app )
+
+# bryllite node server app ( for test )
+#add_subdirectory( node-server-testapp )

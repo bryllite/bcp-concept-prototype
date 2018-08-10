@@ -1,5 +1,6 @@
 #pragma once
 
+#include <leveldb/db.h>
 
 // block chain class
 class CBlockChain 
@@ -13,45 +14,17 @@ public:
 	std::unique_ptr< std::thread > _io_thread;
 	std::string _export_file_name;
 
+	// is stopped?
 	bool _stop;
 
+	// last block index
 	BlockIdx _last_block_index;
 
+	// data-dir path
 	std::string& _data_dir;
 
-	struct file_header
-	{
-		char signature[4];
-		size_t block_size;
-
-		file_header() : file_header(0)
-		{
-		};
-
-		file_header( size_t size ) : signature("BRC"), block_size(size)
-		{
-		};
-
-		bool valid( void )
-		{
-			return ( signature[0] == 'B' && signature[1] == 'R' && signature[2] == 'C' && signature[3] == 0 );
-		};
-	};
-
-	// block header
-	struct block_header
-	{
-		BlockIdx block_idx;
-		size_t block_len;
-
-		block_header() : block_idx(0), block_len(0)
-		{
-		};
-
-		block_header( BlockIdx idx, size_t len ) : block_idx(idx), block_len(len)
-		{
-		};
-	};
+	// leveldb
+	CLevelDB _ldb;
 
 public:
 	CBlockChain(std::string& data_dir, bryllite::lockable& lock);
@@ -59,8 +32,8 @@ public:
 	bool start(std::string file);
 	void stop(void);
 
-	bool loadDB( std::string fileName );
-	bool saveDB( std::string fileName );
+	bool rebuildFromDB(void);
+	bool insertDB(const CBlock& block);
 
 	// block height & last block index
 	size_t size( void );
@@ -96,6 +69,10 @@ public:
 	BlockIdx nextRound(void);
 
 protected:
-	bool _saveDB(std::string fileName);
-	void io_worker(void);
+	// add block without verification
+	bool addBlock(const CBlock& block);
+
+	// rebuild balance data
+	bool rebuildBalances(BlockIdx last);
+
 };

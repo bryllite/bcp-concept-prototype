@@ -99,6 +99,9 @@ protected:
 	// node verify secrets
 	std::map< NodeID, CSecret > _secrets;
 
+	// committed new block
+	CBlock _new_block;
+
 public:
 	CCommitBlockBox();
 
@@ -114,6 +117,8 @@ public:
 
 	// find new block
 	bool findNewBlock(size_t qualifyVotes, CBlock& newBlock);
+
+	const CBlock& newBlock(void) const;
 
 };
 

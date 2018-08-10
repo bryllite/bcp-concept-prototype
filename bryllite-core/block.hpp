@@ -65,6 +65,8 @@ public:
 
 	size_t serialize( byte* target, size_t target_len );
 	size_t unserialize( byte* src, size_t src_len );
+	size_t serialize(CByteStream& bstream) const;
+	size_t unserialize(CByteStream& bstream);
 
 	bool operator==( const CBlock& other ) const;
 	bool operator!=( const CBlock& other ) const;

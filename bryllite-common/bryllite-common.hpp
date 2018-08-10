@@ -48,11 +48,11 @@
 #include "exception.hpp"
 #include "singleton.hpp"
 #include "lockable.hpp"
+#include "bytestream.hpp"
 
 // dependent header
 #include "clog.hpp"
 #include "threadable.hpp"
-#include "fsm.hpp"
 #include "timer.hpp"
 
 // namespace bryllite

@@ -10,7 +10,7 @@ set( bryllite-common-sources
 	lockable.cpp lockable.hpp
 	clog.cpp clog.hpp
 	threadable.cpp threadable.hpp
-	fsm.cpp fsm.hpp
+	bytestream.cpp bytestream.hpp
 	bryllite-common.cpp bryllite-common.hpp
 	stdafx.cpp stdafx.hpp
 )

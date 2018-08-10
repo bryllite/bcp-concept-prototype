@@ -11,6 +11,8 @@ This Project is BCP Concept Prototype Sample which explaining how BCP works
 * [Cygwin-2.10.0](https://www.cygwin.com)
 * [Git-2.17.0](https://git-scm.com/downloads)
 * [OpenSSL-1.1.0c](https://openssl.org)
+* [Vcpkg](https://github.com/Microsoft/vcpkg)
+* LevelDB:x86-windows for vcpkg ( vcpkg install leveldb:x86-windows )
 
 # demo ( prebuild binaries )
 ![screenshot](https://user-images.githubusercontent.com/39185929/43046778-0234bd76-8e09-11e8-9149-cc5a9d601e26.jpg)
@@ -22,6 +24,10 @@ bryllite-platform/bin/Release/demo2.bat
 ~~~
 
 # how to build
+* install vcpkg : ( https://github.com/Microsoft/vcpkg )
+* install LevelDB : ( `vcpkg install leveldb:x86-windows` )
+* use leveldb for msvc ( `vkpkg integrate install` )
+
 set OPENSSL_ROOT_DIR & BOOST_ROOT on `cmake32.bat`
 and run `cmake32.bat`
 

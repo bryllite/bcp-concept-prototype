@@ -180,6 +180,6 @@ protected:
 	int onBcpCommit(CRoundHelper& roundHelper, const CBlock& block) override;
 	int onBcpNewBlock(CRoundHelper& roundHelper, const CBlock& newBlock) override;
 	int onBcpAbandoned(CRoundHelper& roundHelper) override;
-
+	int onBcpRoundCompleted(CRoundHelper& roundHelper, const CBlock& newBlock) override;
 
 };

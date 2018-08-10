@@ -30,6 +30,8 @@
 #include "privatekey.hpp"
 #include "keypair.hpp"
 
+#include "leveldb.hpp"
+
 #include "secret.hpp"
 #include "account.hpp"
 #include "transaction.hpp"

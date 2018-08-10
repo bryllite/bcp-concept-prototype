@@ -18,6 +18,7 @@ set( bryllite-core-sources
 	coin.cpp coin.hpp
 	account.cpp account.hpp
 	secret.cpp secret.hpp
+	leveldb.cpp leveldb.hpp
 	block_header.cpp block_header.hpp
 	transaction.cpp transaction.hpp
 	block.cpp block.hpp

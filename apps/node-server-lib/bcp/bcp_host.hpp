@@ -59,6 +59,7 @@ protected:
 	virtual int onBcpCommit(CRoundHelper& roundHelper, const CBlock& block) = 0;
 	virtual int onBcpNewBlock(CRoundHelper& roundHelper, const CBlock& newBlock) = 0;
 	virtual int onBcpAbandoned(CRoundHelper& roundHelper) = 0;
+	virtual int onBcpRoundCompleted(CRoundHelper& roundHelper, const CBlock& newBlock) = 0;
 };
 
 

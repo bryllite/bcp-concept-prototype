@@ -246,6 +246,9 @@ public:
 	// serialize/unserialize
 	size_t serialize(byte* stream, size_t stream_len);
 	size_t unserialize(byte* stream, size_t stream_len);
+	size_t serialize(CByteStream& bstream) const;
+	size_t unserialize(CByteStream& bstream);
+
 
 	operator std::vector<CTransaction>&(void);
 
